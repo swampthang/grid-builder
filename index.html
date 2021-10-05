@@ -1,0 +1,56 @@
+<!--index.html-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <link rel="stylesheet" href="./css/bootstrap.css">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Grid Builder</title>
+</head>
+<body>
+<h1>Settings</h1>
+<div class="container">
+  <div class="row mt-5">
+    <div class="col-sm-3">
+      <label for="cols">Columns</label>
+      <input class="form-control" type="number" id="cols" default="4" value="4">
+    </div>
+    <div class="col-sm-3">
+      <label for="rows">Rows</label>
+      <input class="form-control" type="number" id="rows" default="3" value="3">
+    </div>
+    <div class="col-sm-3">
+      <label for="max-width">Composite Width</label>
+      <input class="form-control" type="number" id="max-width" default="1920" value="1920">
+    </div>
+    <div class="col-sm-3">
+      <label for="gutter">Gutter Size</label>
+      <input class="form-control" type="number" id="gutter" default="2" value="2">
+    </div>
+  </div>
+</div>
+<div class="container buttons">
+  <div class="row mt-5">
+    <div class="col-sm-3">
+      <button type="button" class="btn btn-primary" id="images-folder">IMAGES FOLDER</button>
+    </div>
+    <div class="col-sm-9">
+      <input class="form-control" id="selected-images-folder" type="text" value="">
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col"><button type="button" class="btn btn-success" id="process">COMPOSITE IMAGES</button></div>
+  </div>
+</div>
+<div class="spinner-container">
+  <div class="spinner"></div>
+</div>
+<!-- You can also require other files to run in this process -->
+<script src="./js/bootstrap.js"></script>
+<script src="./renderer.js"></script>
+</body>
+</html>
