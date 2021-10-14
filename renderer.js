@@ -11,7 +11,21 @@ const path = require('path')
 const ipc = electron.ipcRenderer;
 
 let selectedImagesDir = document.getElementById('selected-images-folder'),
-    spinner = document.querySelector('.spinner-container');
+    makeImgsBtn = document.getElementById('make-images'),
+    functionPicker = document.getElementById('function-picker'),
+    spinner = document.querySelector('.spinner-container'),
+    imgBuilderObj = {};
+
+functionPicker.addEventListener('change', function(e){
+  let id = functionPicker.value;
+  document.querySelectorAll('.function-wrapper').forEach( (wrapper)=>{
+    if( wrapper.id === id ) {
+      wrapper.style.display = 'block';
+    } else {
+      wrapper.style.display = 'none';
+    }
+  });
+})
 
 function createMontage(fileName) {
 
@@ -76,6 +90,57 @@ processBtn.addEventListener('click', ()=>{
   });
 });
 
+// image creator stuff //////////////////////////////////////////////////////////////////////////
+
+function makeImages() {
+
+  dialog.showOpenDialog( mainWindow, {
+    title: 'Select Save Folder',
+    buttonLabel: 'Set Folder',
+    properties: ['openDirectory']
+  }).then(result => {
+    if( !result.canceled ) {
+      makeThumb(result.filePaths[0]);
+    }
+  }).catch(err => {
+    console.log(err)
+  });
+
+  function makeThumb(folder) {
+
+    let p = path.parse(imgBuilderObj.overlayImg);
+    let thumb = folder + path.sep + p.name + '-640' + p.ext;
+    gm(imgBuilderObj.overlayImg)
+      .out('-thumbnail', '640x640>')
+      .out('-background', 'transparent')
+      .out('-gravity', 'center')
+      .out('-extent', '640x640')
+      .write(thumb, function(err){
+        if( !err ) {
+          makeComposite({folder: folder, thumb: thumb, p: p})
+        } else {
+          console.log(err);
+        }
+      })
+  }
+
+  function makeComposite(obj) {
+    let compositeFile = obj.folder + path.sep + obj.p.name + '-main' + obj.p.ext;
+    gm(obj.thumb)
+      .in(imgBuilderObj.bgImg)
+      .gravity('Center')
+      .out('-composite')
+      .write(compositeFile, function(err) {
+        if(!err) {
+          console.log("Written composite image.");
+          shell.showItemInFolder(compositeFile);
+        } else {
+          console.log(err);
+        }
+      });
+  }
+}
+
 imagesFolderBtn.addEventListener('click', ()=>{
   dialog.showOpenDialog( mainWindow, {
     title: 'Select Images Folder',
@@ -87,5 +152,33 @@ imagesFolderBtn.addEventListener('click', ()=>{
     }
   }).catch(err => {
     console.log(err)
+  });
+});
+
+makeImgsBtn.addEventListener('click', makeImages);
+
+document.querySelectorAll('.img-btn').forEach( function(btn){
+  let id = btn.id;
+  btn.addEventListener('click', ()=>{
+    dialog.showOpenDialog( mainWindow, {
+      title: 'Select Images Folder',
+      buttonLabel: 'Set Folder',
+      properties: ['openFile']
+    }).then(result => {
+      if( !result.canceled ) {
+        if( id === 'bg-img') {
+          imgBuilderObj.bgImg = result.filePaths[0];
+          document.getElementById('bg-img-shot').setAttribute('src', result.filePaths[0]);
+        } else if(id === 'overlay-img' ) {
+          imgBuilderObj.overlayImg = result.filePaths[0];
+          document.getElementById('overlay-img-shot').setAttribute('src', result.filePaths[0]);
+        }
+        if( imgBuilderObj.bgImg !== undefined && imgBuilderObj.overlayImg !== undefined ) {
+          makeImgsBtn.style.display = 'block';
+        }
+      }
+    }).catch(err => {
+      console.log(err)
+    });
   });
 });

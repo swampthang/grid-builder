@@ -12,38 +12,73 @@
   <title>Grid Builder</title>
 </head>
 <body>
-<h1>Settings</h1>
-<div class="container">
-  <div class="row mt-5">
-    <div class="col-sm-3">
-      <label for="cols">Columns</label>
-      <input class="form-control" type="number" id="cols" default="4" value="4">
+<div class="menu">
+  <select name="function-picker" id="function-picker">
+    <option value="">CHOOSE OPTION</option>
+    <option value="grid-builder">Make Set of Image Grids</option>
+    <option value="image-builder">Create Product Images</option>
+  </select>
+</div>
+<div id="grid-builder" class="function-wrapper">
+  <h2 class="heading">Images Grids</h2>
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-sm-3">
+        <label for="cols">Columns</label>
+        <input class="form-control" type="number" id="cols" default="4" value="4">
+      </div>
+      <div class="col-sm-3">
+        <label for="rows">Rows</label>
+        <input class="form-control" type="number" id="rows" default="3" value="3">
+      </div>
+      <div class="col-sm-3">
+        <label for="max-width">Composite Width</label>
+        <input class="form-control" type="number" id="max-width" default="1920" value="1920">
+      </div>
+      <div class="col-sm-3">
+        <label for="gutter">Gutter Size</label>
+        <input class="form-control" type="number" id="gutter" default="2" value="2">
+      </div>
     </div>
-    <div class="col-sm-3">
-      <label for="rows">Rows</label>
-      <input class="form-control" type="number" id="rows" default="3" value="3">
+  </div>
+  <div class="container buttons">
+    <div class="row mt-5">
+      <div class="col-sm-3">
+        <button type="button" class="btn btn-primary" id="images-folder">IMAGES FOLDER</button>
+      </div>
+      <div class="col-sm-9">
+        <input class="form-control" id="selected-images-folder" type="text" value="">
+      </div>
     </div>
-    <div class="col-sm-3">
-      <label for="max-width">Composite Width</label>
-      <input class="form-control" type="number" id="max-width" default="1920" value="1920">
-    </div>
-    <div class="col-sm-3">
-      <label for="gutter">Gutter Size</label>
-      <input class="form-control" type="number" id="gutter" default="2" value="2">
+    <div class="row mt-5">
+      <div class="col"><button type="button" class="btn btn-success" id="process">COMPOSITE IMAGES</button></div>
     </div>
   </div>
 </div>
-<div class="container buttons">
-  <div class="row mt-5">
-    <div class="col-sm-3">
-      <button type="button" class="btn btn-primary" id="images-folder">IMAGES FOLDER</button>
-    </div>
-    <div class="col-sm-9">
-      <input class="form-control" id="selected-images-folder" type="text" value="">
+<div id="image-builder" class="function-wrapper">
+  <h2 class="heading">Product Images</h2>
+  <div class="container buttons">
+    <div class="row mt-5">
+      <div class="col">
+        <button type="button" class="img-btn btn btn-primary" id="bg-img">BACKGROUND IMAGE</button>
+      </div>
+      <div class="col">
+        <button type="button" class="img-btn btn btn-primary" id="overlay-img">OVERLAY IMAGE</button>
+      </div>
+      <div class="col">
+        <button type="button" class="btn btn-success" id="make-images">MAKE IMAGES</button>
+      </div>
     </div>
   </div>
-  <div class="row mt-5">
-    <div class="col"><button type="button" class="btn btn-success" id="process">COMPOSITE IMAGES</button></div>
+  <div class="container shots">
+    <div class="row mt-5">
+      <div class="col-6">
+        <img src="" id="bg-img-shot">
+      </div>
+      <div class="col-6">
+        <img src="" id="overlay-img-shot">
+      </div>
+    </div>
   </div>
 </div>
 <div class="spinner-container">
