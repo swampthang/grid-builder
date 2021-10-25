@@ -24,9 +24,11 @@
     "app-root-dir": "^1.0.2",
     "directory-tree": "^3.0.0",
     "electron-squirrel-startup": "^1.0.0",
+    "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^10.0.0",
     "gm": "^1.23.1",
-    "jquery": "^3.6.0"
+    "jquery": "^3.6.0",
+    "lodash": "^4.17.21"
   },
   "config": {
     "forge": {

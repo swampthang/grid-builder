@@ -16,6 +16,7 @@
   <select name="function-picker" id="function-picker">
     <option value="">CHOOSE OPTION</option>
     <option value="grid-builder">Make Set of Image Grids</option>
+    <option value="vid-grid-builder">Make Set of Video Grids</option>
     <option value="image-builder">Create Product Images</option>
   </select>
 </div>
@@ -55,6 +56,44 @@
     </div>
   </div>
 </div>
+
+<div id="vid-grid-builder" class="function-wrapper">
+  <h2 class="heading">Video Grids</h2>
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-sm-3">
+        <label for="cols">Columns</label>
+        <input class="form-control" type="number" id="vid-cols" default="3" value="3">
+      </div>
+      <div class="col-sm-3">
+        <label for="rows">Rows</label>
+        <input class="form-control" type="number" id="vid-rows" default="3" value="3">
+      </div>
+      <div class="col-sm-3">
+        <label for="max-width">Composite Width</label>
+        <input class="form-control" type="number" id="vid-max-width" default="1280" value="1280">
+      </div>
+      <div id="vid-gutter-wrapper" class="col-sm-3">
+        <label for="gutter">Gutter Size</label>
+        <input class="form-control" type="number" id="vid-gutter" default="2" value="2">
+      </div>
+    </div>
+  </div>
+  <div class="container buttons">
+    <div class="row mt-5">
+      <div class="col-sm-3">
+        <button type="button" class="btn btn-primary" id="vid-folder">VIDEO FOLDER</button>
+      </div>
+      <div class="col-sm-9">
+        <input class="form-control" id="selected-vid-folder" type="text" value="">
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col"><button type="button" class="btn btn-success" id="process-vid">COMPOSITE VIDEOS</button></div>
+    </div>
+  </div>
+</div>
+
 <div id="image-builder" class="function-wrapper">
   <h2 class="heading">Product Images</h2>
   <div class="container buttons">
