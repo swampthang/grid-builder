@@ -42,6 +42,11 @@
   display: none;
 }
 
+.menu {
+  padding: 5px 0 16px;
+  text-align: center;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg); }

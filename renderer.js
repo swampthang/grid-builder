@@ -20,7 +20,17 @@ let selectedImagesDir = document.getElementById('selected-images-folder'),
     selectedVidDir = document.getElementById('selected-vid-folder'),
     makeImgsBtn = document.getElementById('make-images'),
     functionPicker = document.getElementById('function-picker'),
+    itemTypes = document.getElementById('item-types'),
+    maxResizeWd = document.getElementById('max-resize-width'),
+    sourceFolderBtn = document.getElementById('source-folder'),
+    selectedSrcFolder = document.getElementById('selected-source-folder'),
+    resizeBtn = document.getElementById('process-resize'),
     spinner = document.querySelector('.spinner-container'),
+    processBtn = document.getElementById('process'),
+    imagesFolderBtn = document.getElementById('images-folder'),
+    vidProcessBtn = document.getElementById('process-vid'),
+    vidFolderBtn = document.getElementById('vid-folder'),
+    destFolderBtn = document.getElementById('dest-folder');
     imgBuilderObj = {};
 
 functionPicker.addEventListener('change', function(e){
@@ -79,7 +89,78 @@ function createVidGridArrays(fileName) {
     spinner.style.display = 'none';
     alert('No mp4 video files found.');
   }
+}
 
+
+function multiResize(destDir) {
+
+  if( maxResizeWd.value == '' ) {
+    alert('No maximum width entered');
+    return;
+  }
+
+  if( selectedSrcFolder.value === "" ) {
+    alert('No source folder selected');
+    return;
+  }
+
+  let sourceDir = selectedSrcFolder.value,
+      maxWidth = parseInt(maxResizeWd.value),
+      fileTypes = Array.from(itemTypes).map(el => el.value),
+      videoExtensions = ['mp4','webm','avi'],
+      imgExtensions = ['jpg','jpeg','tiff','png'],
+      extArr = [];
+
+  // {extensions: /\.(jpg|svg|jpeg|png|tiff)$/}
+  if( fileTypes.includes('video') ) extArr = videoExtensions;
+  if( fileTypes.includes('images') ) extArr = extArr.concat(imgExtensions);
+
+  if( extArr.length === 0 ) {
+    alert('No File Type Selected');
+    return;
+  }
+
+  let extStr = new RegExp(`\\.(${extArr.join('|')})$`);
+
+  let filteredTree = dirTree(sourceDir, {extensions: extStr});
+
+  let files = filteredTree.children;
+  files = _.uniqBy(files, function (e) {
+    return e.name;
+  });
+
+  if( files.length === 0 ) {
+    alert('No files found to resize');
+    return;
+  }
+
+  let cnt = 1, totalFiles = files.length;
+  spinner.style.display = 'block';
+  for( let file of files ) {
+    let p = path.parse(file.path);
+    let outPath = destDir + path.sep + p.name + `-${maxWidth}` + p.ext;
+    let proc = new ffmpeg(file.path);
+    proc.addOutputOptions([`-vf scale=${maxWidth}:-2`]);
+    proc.on('start', function(ffmpegCommand){
+      console.log(ffmpegCommand);
+    })
+      .on('progress', function(data){
+
+      })
+      .on('end', function(){
+        cnt++;
+        if( cnt === totalFiles ) {
+          spinner.style.display = 'none';
+          shell.showItemInFolder(outPath);
+        }
+      })
+      .on('error', function(err,stdout,stderr){
+        console.log(err,stdout,stderr);
+        spinner.style.display = 'none';
+      })
+      .output(outPath)
+      .run();
+  }
 }
 
 function makeVidGrid(obj) {
@@ -105,7 +186,7 @@ function makeVidGrid(obj) {
   if( leftOver === undefined ) {
     for( let r = 1; r <= rows; r++ ) {
       for( let c = 1; c <= cols; c++ ) {
-        str += c < cols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${cols}[r${r}];[r${r}]scale=${wd}:-1[rs-${r}];`;
+        str += c < cols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${cols}[r${r}];[r${r}]scale=${wd}:-2[rs-${r}];`;
         vidArrNum++;
       }
     }
@@ -117,28 +198,30 @@ function makeVidGrid(obj) {
     // must have less than the total per video grid
     rows = parseInt(leftOver / cols);
     let lastCols = leftOver % cols;
+    rows += lastCols;
 
     for( let r = 1; r <= rows; r++ ) {
       for( let c = 1; c <= cols; c++ ) {
-        str += c < cols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${cols}[r${r}];[r${r}]scale=${wd}:-1[rs-${r}];`;
+        str += c < cols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${cols}[r${r}];[r${r}]scale=${wd}:-2[rs-${r}];`;
         vidArrNum++;
       }
     }
     // do last row
     for( let c = 1; c <= lastCols; c++ ) {
-      str += c < lastCols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${lastCols}[r${rows+1}];[r${rows+1}]scale=${wd}:-1[rs-${rows+1}];`;
+      str += c < lastCols ? `[${vidArrNum}:v]` : `[${vidArrNum}:v]hstack=${lastCols}[r${rows+1}];[r${rows+1}]scale=${wd}:-2[rs-${rows+1}];`;
       vidArrNum++;
     }
 
-    for( let r = 1; r <= rows; r++ ) {
+    for( let r = 1; r < rows; r++ ) {
       str += `[rs-${r}]`;
     }
-    str += `[rs-${rows+1}]vstack=${rows+1}[out]`;
+    str += `[rs-${rows}]vstack=${rows}[out]`;
   }
 
+  console.log(str);
+
   proc.addOutputOption(str);
-  proc.addOutputOption(`-map [out]`);
-  proc.addOutputOption('-vcodec libx264');
+  proc.addOutputOptions([`-map [out]`,'-vcodec libx264','-r 30']);
 
   proc.on('start', function(ffmpegCommand){
     console.log(ffmpegCommand);
@@ -233,12 +316,6 @@ function createMontage(fileName) {
   }
 }
 
-let processBtn = document.getElementById('process'),
-    imagesFolderBtn = document.getElementById('images-folder'),
-    vidProcessBtn = document.getElementById('process-vid'),
-    vidFolderBtn = document.getElementById('vid-folder'),
-    destFolderBtn = document.getElementById('dest-folder');
-
 processBtn.addEventListener('click', ()=>{
   let docsPath = app.getPath('documents');
   let fileName = dialog.showSaveDialog(mainWindow, {
@@ -261,6 +338,20 @@ vidProcessBtn.addEventListener('click', ()=>{
   }).then(result => {
     if( !result.canceled ) {
       createVidGridArrays(result.filePath)
+    }
+  }).catch(err => {
+    console.log(err)
+  });
+});
+
+resizeBtn.addEventListener('click', ()=>{
+  dialog.showOpenDialog( mainWindow, {
+    title: 'Select Destination Folder',
+    buttonLabel: 'Set Folder',
+    properties: ['openDirectory']
+  }).then(result => {
+    if( !result.canceled ) {
+      multiResize(result.filePaths[0]);
     }
   }).catch(err => {
     console.log(err)
@@ -340,6 +431,20 @@ vidFolderBtn.addEventListener('click', ()=>{
   }).then(result => {
     if( !result.canceled ) {
       selectedVidDir.value = result.filePaths[0];
+    }
+  }).catch(err => {
+    console.log(err)
+  });
+});
+
+sourceFolderBtn.addEventListener('click', ()=>{
+  dialog.showOpenDialog( mainWindow, {
+    title: 'Select Source Folder',
+    buttonLabel: 'Set Folder',
+    properties: ['openDirectory']
+  }).then(result => {
+    if( !result.canceled ) {
+      selectedSrcFolder.value = result.filePaths[0];
     }
   }).catch(err => {
     console.log(err)
